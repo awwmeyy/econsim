@@ -14,11 +14,8 @@
      - **Country Name**
      - **Government Capital Pool**: Total capital at the end of the game.
      - **Industries**: Detailed information on all industries, including production levels, technology levels, outputs, and inputs.
-     - **Workforce**: Number of employed and unemployed skilled and unskilled workers.
      - **Stockpiles**: Quantities of all goods and resources held.
      - **Natural Resources**: Remaining reserves and extraction rates.
-     - **Trade Records**: Summary of trade activities, including exports and imports.
-     - **Economic Indicators**: Any additional data such as GDP, economic growth rates, technological advancements, and standard of living indices.
 
 2. **Objective:**
 
@@ -32,24 +29,18 @@
 
    - **Total Wealth (Government Capital Pool):**
      - Assess the total capital accumulated.
-   - **Economic Growth:**
-     - Evaluate the growth rate of the economy over the 50 turns.
    - **Industrial Development:**
      - Consider the number and levels of industries, including production and technology levels.
    - **Technological Advancement:**
      - Analyze advancements in technology levels across industries.
    - **Resource Utilization:**
      - Evaluate how effectively natural resources were managed and utilized.
-   - **Trade Performance:**
-     - Assess the trade balance, export volumes, and import dependencies.
-   - **Workforce Employment:**
-     - Consider employment rates of skilled and unskilled workers.
-   - **Standard of Living:**
-     - Infer based on factors like unemployment rates, availability of goods, and economic prosperity.
    - **Diversification:**
      - Evaluate the diversity of industries and economic resilience.
    - **Strategic Achievements:**
      - Consider any significant achievements, such as monopolizing a resource or technology.
+   - **Economic Output:**
+     - Assess the overall output of industries based on production levels and outputs.
 
 4. **Evaluation Process:**
 
@@ -78,15 +69,12 @@
       "Rank": 1,
       "Scores": {
         "Total Wealth": numeric_value,
-        "Economic Growth": numeric_value,
         "Industrial Development": numeric_value,
         "Technological Advancement": numeric_value,
         "Resource Utilization": numeric_value,
-        "Trade Performance": numeric_value,
-        "Workforce Employment": numeric_value,
-        "Standard of Living": numeric_value,
         "Diversification": numeric_value,
-        "Strategic Achievements": numeric_value
+        "Strategic Achievements": numeric_value,
+        "Economic Output": numeric_value
       },
       "Justification": "Detailed justification for why Country A is ranked first, citing specific data and achievements."
     },
