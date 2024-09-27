@@ -1,0 +1,5 @@
+- **Price Adjustment:**
+  - **Price Increase:** For every purchase of **X units** of a resource, the price of that resource increases by **5%**.
+  - **Price Decrease:** For every sale of **X units** of a resource, the price of that resource decreases by **5%**.
+- **Transaction Limits:**
+  - **Maximum Purchase/Sale per Turn:** Players (including AI countries) can buy or sell a maximum of **X units** of any resource per turn.
