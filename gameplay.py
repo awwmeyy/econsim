@@ -5,8 +5,9 @@ import json
 from openai import OpenAI
 from sqlalchemy.orm import Session
 from models import (
-    Game, Turn, Country, Industry, Action, Resource,
-    StartNewIndustryAction, ExpandIndustryAction, UpgradeTechnologyAction, IndustryInput, IndustryOutput, TechnologyUpgrade
+    Game, Turn, Country, Industry, Action, Resource, Stockpile,
+    StartNewIndustryAction, ExpandIndustryAction, UpgradeTechnologyAction, IndustryInput, IndustryOutput, TechnologyUpgrade,
+    MarketTransaction
 )
 from sqlalchemy import and_
 
@@ -37,14 +38,18 @@ def process_ai_turn(game: Game, turn_number: int, session: Session):
         # Get the AI's decision
         response_text = get_openai_response(prompt)
 
-        # Parse the AI's response to get the selected action
-        selected_action_data = parse_ai_response(response_text)
+        # Parse the AI's response to get the actions list
+        actions_data = parse_ai_response(response_text)
 
-        # Apply the selected action to the game state
-        if selected_action_data:
-            apply_ai_action(country, turn_number, selected_action_data, session)
+        # Apply each action to the game state
+        if actions_data:
+            for action_data in actions_data:
+                apply_ai_action(country, turn_number, action_data, session)
         else:
-            print(f"Failed to process AI decision for country {country.name}.")
+            print(f"Failed to process AI decisions for country {country.name}.")
+
+    # After all AI actions have been processed, adjust market prices
+    adjust_market_prices(turn_number, session)
 
 def prepare_ai_prompt(country: Country, turn_number: int, session: Session):
     """
@@ -75,7 +80,7 @@ def prepare_ai_prompt(country: Country, turn_number: int, session: Session):
     marketplace_data_json = json.dumps(marketplace_data, indent=2)
 
     # Prepare the final prompt
-    prompt = f"{base_prompt}\n\n### **Current Turn Information**\nTurn Number: {turn_number}\n\n### **Country Schema**\n```json\n{country_schema_json}\n```\n\n### **Marketplace Prices**\n```json\n{marketplace_data_json}\n```\n\n### **Available Actions**\n```json\n{available_actions_json}\n```"
+    prompt = f"{base_prompt}\n\n### **Current Turn Information**\nTurn Number: {turn_number}\n\n### **Country Schema**\n```json\n{country_schema_json}\n```\n\n### **Marketplace Prices**\n```json\n{marketplace_data_json}\n```\n\n### **Available Actions**\n```json\n{available_actions_json}\n```\n\n**Note: Options for BuySellResource actions are not pre-generated and should be decided based on the given data.**"
 
     return prompt
 
@@ -114,7 +119,7 @@ def get_available_actions(country: Country, turn_number: int, session: Session):
             "IndustryID": action.industry_id,
             "Type": action.industry_type,
             "SubType": action.sub_type,
-            "SetupCost": action.setup_cost,
+            "SetupCost": float(action.setup_cost),
             "ProductionLevel": action.production_level,
             "TechnologyLevel": action.technology_level,
             "InputsRequired": json.loads(action.inputs_required),
@@ -132,7 +137,7 @@ def get_available_actions(country: Country, turn_number: int, session: Session):
             "ActionID": action.id,
             "IndustryID": action.industry_id,
             "NewProductionLevel": action.new_production_level,
-            "ExpansionCost": action.expansion_cost,
+            "ExpansionCost": float(action.expansion_cost),
             "AdditionalSkilledWorkersRequired": action.additional_skilled_workers_required,
             "AdditionalUnskilledWorkersRequired": action.additional_unskilled_workers_required,
             "IncreaseInOutputs": json.loads(action.increase_in_outputs),
@@ -148,7 +153,7 @@ def get_available_actions(country: Country, turn_number: int, session: Session):
             "ActionID": action.id,
             "IndustryID": action.industry_id,
             "NewTechnologyLevel": action.new_technology_level,
-            "UpgradeCost": action.upgrade_cost,
+            "UpgradeCost": float(action.upgrade_cost),
             "TimeToComplete": action.time_to_complete,
             "Benefits": action.benefits
         })
@@ -179,13 +184,13 @@ def get_marketplace_data(session: Session):
 
 def parse_ai_response(response_text):
     """
-    Parses the AI's response to get the selected action.
+    Parses the AI's response to get the actions.
 
     Args:
         response_text (str): The response text from OpenAI.
 
     Returns:
-        dict: The selected action data.
+        list: List of action data dictionaries.
     """
     try:
         # Remove code fences if present
@@ -197,13 +202,14 @@ def parse_ai_response(response_text):
 
         # Parse JSON
         ai_response = json.loads(response_text)
+        actions = ai_response.get("Actions", [])
 
-        return ai_response.get("Actions", [])[0]  # Get the first (and only) action
+        return actions  
     except json.JSONDecodeError as e:
         print("Failed to parse AI response JSON.")
         print("Response text:", response_text)
         print("Error message:", str(e))
-        return None
+        return []
 
 def apply_ai_action(country: Country, turn_number: int, action_data, session: Session):
     """
@@ -217,28 +223,41 @@ def apply_ai_action(country: Country, turn_number: int, action_data, session: Se
     """
     try:
         action_type = action_data.get("ActionType")
-        action_id = action_data.get("ActionID")
-        # Mark the action as selected
-        base_action = session.query(Action).filter_by(
-            id=action_id,
-            country_id=country.id
-        ).first()
-        if not base_action:
-            print(f"Action ID {action_id} not found for country {country.name}.")
-            return
+        
+        # For actions that require selection from pre-generated options
+        if action_type in ["StartNewIndustry", "ExpandIndustry", "UpgradeTechnology"]:
+        
+            action_id = action_data.get("ActionID")
+            
+            # Fetch the base action from the database based on ActionID
+            base_action = session.query(Action).filter_by(
+                id=action_id,
+                country_id=country.id
+            ).first()
+            if not base_action:
+                print(f"Action ID {action_id} not found for country {country.name}.")
+                return
 
-        if base_action.selected:
-            print(f"Action ID {action_id} has already been selected.")
-            return
+            if base_action.selected:
+                print(f"Action ID {action_id} has already been selected.")
+                return
 
-        base_action.selected = True
+            base_action.selected = True
 
-        if action_type == "StartNewIndustry":
-            apply_start_new_industry_action(base_action, country, session)
-        elif action_type == "ExpandIndustry":
-            apply_expand_industry_action(base_action, country, session)
-        elif action_type == "UpgradeTechnology":
-            apply_upgrade_technology_action(base_action, country, session)
+            if action_type == "StartNewIndustry":
+                apply_start_new_industry_action(base_action, country, session)
+            elif action_type == "ExpandIndustry":
+                apply_expand_industry_action(base_action, country, session)
+            elif action_type == "UpgradeTechnology":
+                apply_upgrade_technology_action(base_action, country, session)
+            else:
+                print(f"Unknown action type: {action_type}")
+                return
+
+        elif action_type == "BuySellResource":
+            # Handle BuySellResource action directly from action_data
+            apply_buy_sell_resource_action(action_data, country, turn_number, session)
+
         else:
             print(f"Unknown action type: {action_type}")
             return
@@ -324,9 +343,6 @@ def apply_expand_industry_action(action: ExpandIndustryAction, country: Country,
     industry.skilled_workers_employed += action.additional_skilled_workers_required
     industry.unskilled_workers_employed += action.additional_unskilled_workers_required
 
-    # Update industry inputs and outputs if necessary
-    # For simplicity, we can assume inputs and outputs scale with production level
-
 def apply_upgrade_technology_action(action: UpgradeTechnologyAction, country: Country, session: Session):
     """
     Applies an UpgradeTechnologyAction to the game state.
@@ -351,6 +367,174 @@ def apply_upgrade_technology_action(action: UpgradeTechnologyAction, country: Co
         is_completed=False
     )
     session.add(tech_upgrade)
+
+# Function to handle BuySellResource actions
+def apply_buy_sell_resource_action(action_data, country: Country, turn_number: int, session: Session):
+    """
+    Applies a BuySellResource action to the game state.
+
+    Args:
+        action_data (dict): The action data.
+        country (Country): The Country instance.
+        turn_number (int): The current turn number.
+        session (Session): The SQLAlchemy session.
+    """
+    details = action_data.get("Details", {})
+    transaction_type = details.get("TransactionType")
+    resource_name = details.get("ResourceName")
+    quantity = details.get("Quantity")
+    total_price = details.get("TotalCost") or details.get("TotalRevenue")
+
+    # Validate inputs
+    if not all([transaction_type, resource_name, quantity, total_price]):
+        print(f"Invalid BuySellResource action data for country {country.name}.")
+        return
+
+    # Get the resource
+    resource = session.query(Resource).filter_by(name=resource_name).first()
+    if not resource:
+        print(f"Resource '{resource_name}' not found.")
+        return
+
+    # Get or create the country's stockpile for the resource
+    stockpile = session.query(Stockpile).filter_by(country_id=country.id, resource_id=resource.id).first()
+    if not stockpile:
+        # If stockpile doesn't exist, create it with zero quantity
+        stockpile = Stockpile(country_id=country.id, resource_id=resource.id, quantity=0)
+        session.add(stockpile)
+        session.flush()  # To get stockpile.id
+
+    max_transaction_per_turn = resource.max_transaction_per_turn
+
+    if quantity > max_transaction_per_turn:
+        print(f"Transaction quantity {quantity} exceeds MaxTransactionPerTurn for resource '{resource_name}'.")
+        return
+
+    if transaction_type == "Buy":
+        # Check if country has enough capital
+        if country.government_capital < total_price:
+            print(f"Country '{country.name}' does not have enough capital to buy {quantity} of '{resource_name}'.")
+            return
+
+        # Update country's capital
+        country.government_capital -= total_price
+
+        # Update stockpile
+        stockpile.quantity += quantity
+
+        print(f"Country '{country.name}' bought {quantity} of '{resource_name}' for {total_price}.")
+
+    elif transaction_type == "Sell":
+        # Check if country has enough resource in stockpile
+        if stockpile.quantity < quantity:
+            print(f"Country '{country.name}' does not have enough '{resource_name}' to sell {quantity}.")
+            return
+
+        # Update stockpile
+        stockpile.quantity -= quantity
+
+        # Update country's capital
+        country.government_capital += total_price
+
+        print(f"Country '{country.name}' sold {quantity} of '{resource_name}' for {total_price}.")
+
+    else:
+        print(f"Invalid TransactionType '{transaction_type}' for BuySellResource action.")
+        return
+
+    # Record the transaction
+    # Get the current turn
+    turn = session.query(Turn).filter(
+        and_(Turn.game_id == country.game_id, Turn.turn_number == turn_number)
+    ).first()
+    if not turn:
+        # Create a new Turn if it doesn't exist
+        turn = Turn(
+            game_id=country.game_id,
+            turn_number=turn_number
+        )
+        session.add(turn)
+        session.flush()
+
+    transaction = MarketTransaction(
+        turn_id=turn.id,
+        country_id=country.id,
+        resource_id=resource.id,
+        transaction_type=transaction_type,
+        quantity=quantity,
+        price_per_unit=total_price / quantity,
+        total_price=total_price
+    )
+    session.add(transaction)
+
+# Function to adjust market prices based on transactions
+def adjust_market_prices(turn_number: int, session: Session):
+    """
+    Adjusts the market prices of resources based on transactions during the turn.
+
+    Args:
+        turn_number (int): The current turn number.
+        session (Session): The SQLAlchemy session.
+    """
+    # Get the current turn
+    turn = session.query(Turn).filter(Turn.turn_number == turn_number).first()
+    if not turn:
+        print(f"No Turn data found for turn number {turn_number}.")
+        return
+
+    # Get all transactions for the turn
+    transactions = session.query(MarketTransaction).filter_by(turn_id=turn.id).all()
+
+    if not transactions:
+        print(f"No market transactions found for turn number {turn_number}.")
+        return
+
+    # Aggregate quantity transacted per resource
+    resource_quantities = {}
+    for transaction in transactions:
+        resource_id = transaction.resource_id
+        quantity = transaction.quantity
+
+        if resource_id not in resource_quantities:
+            resource_quantities[resource_id] = 0
+
+        if transaction.transaction_type == "Buy":
+            # Buying increases demand, price should go up
+            resource_quantities[resource_id] += quantity
+        elif transaction.transaction_type == "Sell":
+            # Selling increases supply, price should go down
+            resource_quantities[resource_id] -= quantity
+
+    # Adjust resource prices
+    for resource_id, net_quantity in resource_quantities.items():
+        resource = session.query(Resource).filter_by(id=resource_id).first()
+        if not resource:
+            continue
+
+        quantity_threshold = resource.quantity_threshold
+        if quantity_threshold == 0:
+            print(f"Resource '{resource.name}' has zero quantity_threshold.")
+            continue
+
+        # Calculate how many thresholds the net_quantity represents
+        num_thresholds = int(abs(net_quantity) / quantity_threshold)
+
+        if num_thresholds > 0:
+            percentage_change = 0.05 * num_thresholds  # 5% per threshold
+            if net_quantity > 0:
+                # Net buying, price goes up
+                new_price = resource.current_price * (1 + percentage_change)
+            elif net_quantity < 0:
+                # Net selling, price goes down
+                new_price = resource.current_price * (1 - percentage_change)
+            # Ensure new price is within MinPrice and MaxPrice
+            new_price = max(min(new_price, resource.max_price), resource.min_price)
+            print(f"Adjusted price of '{resource.name}' from {resource.current_price} to {new_price} based on net_quantity {net_quantity}.")
+            resource.current_price = new_price
+        else:
+            print(f"No price adjustment for '{resource.name}' as net quantity {net_quantity} is less than QuantityThreshold {quantity_threshold}.")
+
+    session.commit()
 
 # helpers (dup code, refactor later aaaaaaa)
 
