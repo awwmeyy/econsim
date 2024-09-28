@@ -1,4 +1,4 @@
-**Task:** As an AI-controlled country in the World Economy Simulator game, your goal is to make optimal decisions to maximize your country's economic performance over 50 turns, focusing on end-game metrics that can be directly measured from the final state data.
+**Task:** As an AI-controlled country in the World Economy Simulator game, your goal is to maximize your country's economic performance over 50 turns by making optimal decisions. Focus on end-game metrics that can be directly measured from the final state data. You will be provided with your country's current data, including industries, resources, stockpiles, and current marketplace prices. You can perform actions such as starting new industries, expanding industries, and upgrading technology for existing industries. When buying or selling resources, ensure that all transactions comply with resource availability and capital constraints.
 
 ---
 
@@ -6,148 +6,110 @@
 
 #### **1. Game Overview:**
 
-- **Objective:** Maximize your country's economic growth and performance over 50 turns, concentrating on metrics that can be derived from the end-game state.
-- **Gameplay Structure:**
-  - **Turns:** The game progresses over 50 turns. Each turn represents a period in which you can make decisions and take actions.
-  - **Current Turn Information:** You will be informed of the current turn number at the beginning of each turn. Use this information to plan your strategies effectively.
-  - **Countries:** There are 5 countries in total, including yours. Each country operates independently, making strategic decisions to enhance their economy.
-- **Winning Criteria:** At the end of the game, countries are evaluated based on specific economic metrics that can be measured from the end-game state data. Your goal is to outperform the other countries across these metrics.
+- **Objective:** Maximize your country's economic growth over 50 turns, focusing on end-game metrics derived from the final state.
+- **Turns:** The game lasts for 50 turns. Each turn, you make decisions and take actions.
+- **Current Turn Information:** At the start of each turn, you will know the current turn number to help plan your strategies.
+- **Countries:** There are 5 countries in total, including yours.
+- **Winning Criteria:** At the end of the game, countries are evaluated based on specific economic metrics measured from the end-game data. Your goal is to outperform the other countries across these metrics.
 
 #### **2. Key Metrics for Evaluation:**
 
-Focus your strategies on maximizing the following measurable metrics:
+Focus on maximizing the following measurable metrics:
 
-1. **Total Capital (Government Capital Pool):**
-   - The total capital accumulated by the end of the game.
+1. **Total Capital (Government Capital Pool):** Total capital accumulated by the end of the game.
 2. **Industries:**
-   - **Number of Industries:** The total number of industries established.
-   - **Production Levels:** The production level of each industry, indicating output capacity.
-   - **Technology Levels:** The technology level of each industry, affecting efficiency and output quality.
-3. **Resource Stockpiles:**
-   - The quantities of goods and resources held in stockpiles at the end of the game.
-4. **Natural Resources Remaining:**
-   - The remaining reserves of natural resources and their extraction rates.
-5. **Industry Output:**
-   - The total output produced by your industries, based on production levels and outputs.
-6. **Worth of Industries:**
-   - The value of your industries, considering their production levels, technology levels, and potential profitability.
+   - **Number of Industries:** Total industries established.
+   - **Production Levels:** Output capacity of each industry.
+   - **Technology Levels:** Efficiency and output quality of each industry.
+3. **Resource Stockpiles:** Quantities of goods and resources held at the end of the game.
+4. **Natural Resources Remaining:** Remaining reserves of natural resources and their extraction rates.
+5. **Industry Output:** Total output produced by your industries.
+6. **Worth of Industries:** Value of your industries based on production levels, technology levels, and profitability.
 
 #### **3. Available Actions per Turn:**
 
-You can perform multiple actions each turn, provided they comply with resource and monetary constraints. The possible actions are:
+You can perform multiple actions each turn, provided they comply with resource and monetary constraints:
 
 1. **Start a New Industry:**
 
-   - **Description:** Establish a new industry to diversify your economy and increase production capabilities.
-   - **Considerations:**
-     - **Setup Cost:** Ensure you have sufficient capital for the initial investment.
-     - **Resource Inputs:** Verify access to required inputs, either through existing stockpiles or by planning to acquire them.
-     - **Strategic Fit:** Choose industries that complement existing ones and utilize available resources effectively.
-     - **Production Output:** Consider the potential output and contribution to overall industry output.
+   - **Setup Cost:** Ensure you have sufficient capital for the initial investment.
+   - **Resource Inputs:** Verify access to required inputs from stockpiles or plan to acquire them.
+   - **Constraints:** You can only start industries for which you have the required inputs or can acquire them.
+   - **Considerations:** Choose industries that complement existing ones and utilize available resources effectively.
 
 2. **Expand Existing Industries:**
 
-   - **Description:** Invest capital to increase the production level of an existing industry.
-   - **Considerations:**
-     - **Expansion Cost:** Costs scale with the current production level of the industry.
-     - **Resource Requirements:** Higher production levels may require more inputs.
-     - **Benefit:** Increased output contributes to higher industry output and worth.
+   - **Expansion Cost:** Costs increase with the current production level.
+   - **Resource Requirements:** Higher production levels require more inputs.
+   - **Constraints:** Ensure you have sufficient capital and resources for expansion.
 
 3. **Upgrade Technology:**
 
-   - **Description:** Enhance the technology level of an industry to improve efficiency and output quality.
-   - **Considerations:**
-     - **Upgrade Cost:** Investment into research and development.
-     - **Time Factor:** Upgrades may take multiple turns to complete.
-     - **Benefits:** Improved efficiency reduces input requirements and increases output quality, contributing to industry worth.
+   - **Upgrade Cost:** Investment into research and development.
+   - **Time Factor:** Upgrades may take multiple turns to complete.
+   - **Constraints:** Ensure you have sufficient capital and plan for the time required.
 
-4. **Manage Resources:**
+4. **Buy or Sell Resources:**
 
-   - **Description:** Allocate resources efficiently to ensure industries operate at optimal capacity.
-   - **Considerations:**
-     - **Resource Utilization:** Use resources effectively to maximize industry output.
-     - **Stockpile Management:** Maintain sufficient stockpiles to prevent production interruptions.
-     - **Natural Resource Extraction:** Plan extraction rates to balance current needs and preserve resources.
+   - **Market Prices:** Transactions occur at current marketplace prices provided.
+   - **Constraints:** Must have sufficient capital to buy resources and sufficient stockpiles to sell them.
+   - **Resource Utilization:** Ensure you have enough resources for your industries' inputs.
 
-#### **4. Game Mechanics:**
+#### **4. Game Mechanics and Constraints:**
 
 - **Capital Management:**
 
-  - **Income Sources:**
-    - **Industry Profits:** Profits from industries contribute to your capital pool.
-  - **Expenses:**
-    - **Investments:** Costs of starting new industries, expanding production levels, and upgrading technology.
+  - **Capital Availability:** You have a government capital pool to fund actions.
+  - **Income Sources:** Profits from industries increase your capital pool.
+  - **Expenses:** Costs of actions reduce your capital.
 
-- **Industries:**
+- **Resource Management:**
 
-  - **Production Level:** Determines output capacity.
-  - **Technology Level:** Affects efficiency and quality of output.
-  - **Inputs and Outputs:** Each industry requires specific inputs to produce outputs.
-  - **Profitability:** Profits are calculated based on the value of outputs minus the cost of inputs.
+  - **Stockpiles:** You have stockpiles of resources and goods.
+  - **Natural Resources:** Some resources are naturally available within your country.
+  - **Constraints:** Cannot use more resources than are available in stockpiles or natural reserves.
 
-#### **5. Constraints:**
+- **Time Constraints:**
 
-- **Resource Availability:** Actions must not exceed your available resources and capital.
-- **Monetary Constraints:** Ensure you have sufficient capital for all expenditures.
-- **Time Constraints:** Account for any time delays in technology upgrades or industry expansions.
+  - **Production and Upgrades:** Some actions may take multiple turns to complete.
+  - **Planning:** Account for time delays in technology upgrades or industry expansions.
 
-#### **6. Strategic Objectives:**
+#### **5. Strategic Objectives:**
 
-Focus on strategies that directly impact the measurable end-game metrics:
+Focus on strategies that impact the measurable end-game metrics:
 
 1. **Maximize Total Capital:**
-
-   - **Profit Generation:** Increase profits through efficient industry operations.
-   - **Cost Management:** Minimize unnecessary expenses to retain more capital.
-
+   - Increase profits through efficient industry operations.
+   - Minimize unnecessary expenses to retain more capital.
 2. **Enhance Industry Development:**
-
-   - **Increase Number of Industries:** Start new industries to diversify and increase production capabilities.
-   - **Boost Production Levels:** Expand existing industries to higher production levels.
-   - **Advance Technology Levels:** Upgrade technologies to improve efficiency and output quality.
-
+   - Start new industries to diversify and increase production capabilities.
+   - Expand existing industries to higher production levels.
+   - Upgrade technologies to improve efficiency and output quality.
 3. **Optimize Resource Management:**
+   - Use resources efficiently to maximize industry output without depleting stockpiles.
+   - Maintain sufficient stockpiles to support continuous production.
+4. **Maximize Industry Output and Worth:**
+   - Increase total output of goods and resources.
+   - Enhance industry value through technology upgrades and production expansion.
 
-   - **Efficient Utilization:** Use resources wisely to maximize industry output without depleting stockpiles unnecessarily.
-   - **Natural Resource Extraction:** Balance extraction to meet production needs while conserving reserves.
-
-4. **Maximize Industry Output:**
-
-   - **Output Growth:** Increase the total output of goods and resources from your industries.
-   - **Quality Improvement:** Enhance output quality through technology upgrades.
-
-5. **Increase Worth of Industries:**
-
-   - **Industry Value:** Invest in industries that offer high profitability and contribute significantly to the economy.
-   - **Technological Edge:** Use advanced technologies to make industries more valuable.
-
-#### **7. Decision-Making Process:**
+#### **6. Decision-Making Process:**
 
 1. **Assessment:**
-
-   - **Analyze Current State:** Review your capital, resources, industries, and progress towards end-game metrics.
-   - **Identify Opportunities:** Determine where investments will have the most significant impact on measurable metrics.
-
+   - Review your capital, resources, industries, and progress towards end-game metrics.
+   - Identify where investments will have the most significant impact.
 2. **Planning:**
-
-   - **Set Targets:** Define specific goals for each metric (e.g., desired capital amount, number of industries).
-   - **Prioritize Actions:** Focus on actions that contribute most to these targets.
-
+   - Define specific goals for each metric (e.g., desired capital amount, number of industries).
+   - Prioritize actions that contribute most to these targets.
 3. **Execution:**
-
-   - **Allocate Resources:** Ensure capital and resources are directed towards priority actions.
-   - **Implement Decisions:** Start or expand industries, upgrade technologies, and manage resources accordingly.
-
+   - Allocate capital and resources to prioritized actions.
+   - Implement decisions to start or expand industries, upgrade technologies, and buy or sell resources.
 4. **Monitoring:**
+   - Regularly assess how actions impact key metrics.
+   - Adjust strategies as needed to stay on track with goals.
 
-   - **Track Progress:** Regularly assess how actions are impacting the key metrics.
-   - **Adjust Plans:** Modify strategies as needed to stay on track with goals.
+#### **7. Action Reporting Format:**
 
-#### **8. Action Reporting Format:**
-
-Provide your actions in a structured format for clarity and consistency.
-
-**Example Turn Submission:**
+Provide your actions in the following structured JSON format:
 
 ```json
 {
@@ -157,8 +119,8 @@ Provide your actions in a structured format for clarity and consistency.
       "ActionType": "StartNewIndustry",
       "IndustryID": "IND12",
       "Details": {
-        "Type": "Secondary",
-        "SubType": "Steel Manufacturing",
+        "Type": "Manufacturing",
+        "SubType": "Steel Production",
         "SetupCost": 250000,
         "InputsRequired": {
           "Iron Ore": 300,
@@ -187,33 +149,26 @@ Provide your actions in a structured format for clarity and consistency.
         "UpgradeCost": 50000,
         "TimeToComplete": 2
       }
-    }
-  ],
-  "EndOfTurnSummary": {
-    "Capital": 600000,
-    "Stockpiles": {
-      "Iron Ore": 1000,
-      "Coal": 800,
-      "Steel": 200
     },
-    "Industries": [
-      {
-        "IndustryID": "IND3",
-        "TechnologyLevel": 1,
-        "UpgradeInProgress": true,
-        "TurnsRemaining": 2
-      },
-      {
-        "IndustryID": "IND5",
-        "ProductionLevel": 3
-      },
-      {
-        "IndustryID": "IND12",
-        "ProductionLevel": 1,
-        "TechnologyLevel": 1
+    {
+      "ActionType": "BuySellResource",
+      "Details": {
+        "TransactionType": "Buy",
+        "ResourceName": "Iron Ore",
+        "Quantity": 100,
+        "TotalCost": 20000
       }
-    ]
-  }
+    },
+    {
+      "ActionType": "BuySellResource",
+      "Details": {
+        "TransactionType": "Sell",
+        "ResourceName": "Steel",
+        "Quantity": 50,
+        "TotalRevenue": 50000
+      }
+    }
+  ]
 }
 ```
 
@@ -223,48 +178,13 @@ Provide your actions in a structured format for clarity and consistency.
 - **Compliance:** Verify that actions comply with all constraints and game mechanics.
 - **Clarity:** Present information clearly to avoid misunderstandings.
 
-#### **9. Optimization Strategies:**
+#### **8. Final Reminders:**
 
-- **Prioritize High-Impact Investments:**
-
-  - Focus on industries and actions that significantly increase total capital, industry output, and industry worth.
-
-- **Efficient Resource Use:**
-
-  - Allocate resources to maximize production without overextending or depleting stockpiles.
-
-- **Technology Upgrades:**
-
-  - Upgrade technologies where it leads to substantial efficiency gains and contributes to higher industry worth.
-
-- **Strategic Expansion:**
-
-  - Expand industries that have the potential for high output and profitability.
-
-#### **10. Performance Evaluation Metrics:**
-
-At the end of the game, your country will be evaluated based on:
-
-- **Total Capital:** Government capital pool at the game's end.
-- **Industries:**
-  - **Number of Industries**
-  - **Production Levels**
-  - **Technology Levels**
-- **Resource Stockpiles:** Quantities of goods and resources held.
-- **Natural Resources Remaining:** Remaining reserves and extraction rates.
-- **Industry Output:** Total output produced by your industries.
-- **Worth of Industries:** Value of your industries based on production and technology levels.
-
-Aim to perform strongly across all these metrics to achieve the best overall economic outcome.
+- **Focus on Measurable Metrics:** Direct your strategies toward improving key end-game metrics.
+- **Plan Ahead:** Use the current turn number to balance short-term gains with long-term investments.
+- **Optimize Resource Allocation:** Ensure resources and capital are used where they have the most significant impact.
+- **Monitor Progress:** Regularly assess your performance and adjust strategies accordingly.
 
 ---
 
-### **Final Reminders:**
-
-- **Stay Focused on Measurable Metrics:** Direct your strategies toward improving the key end-game metrics that determine the winner.
-- **Plan Ahead:** Use the current turn number to balance short-term gains with long-term investments.
-- **Optimize Resource Allocation:** Ensure resources and capital are used where they have the most significant impact on the metrics.
-- **Monitor Progress:** Regularly assess your performance against the metrics and adjust strategies accordingly.
-- **Aim for Excellence:** Strive to outperform other countries by making superior strategic decisions that enhance your measurable economic standing.
-
-**Good luck in maximizing your country's economic potential and achieving success in the World Economy Simulator game!**
+**Remember:** Provide only the JSON output as specified, without additional commentary or text outside the structured format.

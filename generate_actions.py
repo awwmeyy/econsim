@@ -430,3 +430,4 @@ def prepare_country_schema(country: Country, session: Session):
     }
 
     return country_schema
+
