@@ -6,6 +6,7 @@ from models import User, Game
 from datetime import datetime
 from init_world import generate_initial_world
 from init_marketplace import generate_marketplace_data
+from generate_actions import generate_action_options_for_all_countries
 
 # Database setup
 DATABASE_URL = "sqlite:///game.db"
@@ -70,6 +71,9 @@ def main():
     generate_marketplace_data(game.id, session)
 
     print("Game initialization complete.")
+
+    # generate initial actions 
+    generate_action_options_for_all_countries(game, 1, session=session)
 
     # Close the session
     session.close()
