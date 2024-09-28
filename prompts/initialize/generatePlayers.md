@@ -44,7 +44,7 @@
   ```json
   {
     "Country Name": "Eldoria",
-    "Government Capital Pool": 1,020,000,
+    "Government Capital Pool": 1020000,
     "Industries": [
       {
         "Industry ID": "IND1",
@@ -87,7 +87,7 @@
     },
     "Natural Resources": {
       "Copper Ore": {
-        "Total Reserves": 25,000,
+        "Total Reserves": 25000,
         "Extraction Rate": 500
       }
     }
