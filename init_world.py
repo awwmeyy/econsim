@@ -3,14 +3,9 @@
 import os
 import json
 from openai import OpenAI
-from datetime import datetime
 from sqlalchemy.orm import Session
-from models import (
-    Game, Country, Industry, IndustryInput, IndustryOutput,
-    Stockpile, NaturalResource, Resource
-)
+from models import Country, Industry, IndustryInput, IndustryOutput, Stockpile, NaturalResource, Resource
 
-# gets API Key from environment variable OPENAI_API_KEY
 client = OpenAI(
   base_url="https://openrouter.ai/api/v1",
   api_key=os.getenv("OPENROUTER_API_KEY"),
@@ -40,8 +35,8 @@ def generate_initial_world(game, num_players, session: Session):
             existing_countries.append(country_data)
         else:
             print(f"Failed to generate country {i+1}.")
-            # Handle or retry as needed (e.g., retry the generation)
-            # For simplicity, we'll skip retries here
+
+    print("All AI countries have been generated.")
 
 def generate_country(existing_countries):
     """
@@ -236,7 +231,6 @@ def add_country_to_db(country_data, game_id, session: Session):
     except Exception as e:
         session.rollback()
         print(f"Error adding country to the database: {e}")
-        # Optionally, you can re-raise the exception or handle it accordingly
 
 def get_or_create_resource(resource_name, session: Session):
     """

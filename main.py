@@ -4,7 +4,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from models import User, Game
 from datetime import datetime
-import os
+from init_world import generate_initial_world
+from init_marketplace import generate_marketplace_data
 
 # Database setup
 DATABASE_URL = "sqlite:///game.db"
@@ -37,7 +38,7 @@ def main():
         session.close()
         return
 
-    # Ask how many AI players (max 5)
+    # Ask how many AI players (1-5)
     while True:
         try:
             num_players = int(input("Enter the number of AI players (1-5): ").strip())
@@ -60,12 +61,15 @@ def main():
     session.commit()
     print(f"Game started with {num_players} AI players.")
 
-    # Placeholder for initiating the game generation process
-    # You can implement your game initialization logic here
-    # For example:
-    # generate_initial_world(game, num_players, session)
-
     print("Game initialization in progress...")
+
+    # Generate the initial world (countries and their data)
+    generate_initial_world(game, num_players, session)
+
+    # Generate initial marketplace data
+    generate_marketplace_data(game.id, session)
+
+    print("Game initialization complete.")
 
     # Close the session
     session.close()
