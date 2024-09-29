@@ -152,7 +152,7 @@ def get_openai_response(prompt):
     try:
         # Send the prompt to OpenAI API
         response = client.chat.completions.create(
-            model="anthropic/claude-3.5-sonnet",
+            model="openai/gpt-4o-mini",
             messages=[
                 {
                     "role": "user",
