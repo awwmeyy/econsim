@@ -196,29 +196,55 @@ def apply_ai_action(country: Country, turn_number: int, action_data, session: Se
     if action_type in ["StartNewIndustry", "ExpandIndustry", "UpgradeTechnology"]:
 
         action_id = action_data.get("ActionID")
-
-        # Fetch the base action from the database based on ActionID
-        base_action = session.query(Action).filter_by(
-            id=action_id,
-            country_id=country.id
-        ).first()
-        if not base_action:
-            raise InvalidActionException(f"Action ID {action_id} not found for country {country.name}.")
-
-        if base_action.selected:
-            raise InvalidActionException(f"Action ID {action_id} has already been selected.")
-
-        base_action.selected = True
-
+        # Fetch the base action from the database based on ActionID and ActionType
         if action_type == "StartNewIndustry":
+            base_action = session.query(StartNewIndustryAction).filter_by(
+                id=action_id,
+                country_id=country.id
+            ).first()
+            if not base_action:
+                raise InvalidActionException(f"StartNewIndustryAction ID {action_id} not found for country {country.name}.")
+
+            if base_action.selected:
+                raise InvalidActionException(f"StartNewIndustryAction ID {action_id} has already been selected.")
+
+            base_action.selected = True
             apply_start_new_industry_action(base_action, country, session)
+
         elif action_type == "ExpandIndustry":
+            base_action = session.query(ExpandIndustryAction).filter_by(
+                id=action_id,
+                country_id=country.id
+            ).first()
+            if not base_action:
+                raise InvalidActionException(f"ExpandIndustryAction ID {action_id} not found for country {country.name}.")
+
+            if base_action.selected:
+                raise InvalidActionException(f"ExpandIndustryAction ID {action_id} has already been selected.")
+
+            base_action.selected = True
             apply_expand_industry_action(base_action, country, session)
+
         elif action_type == "UpgradeTechnology":
+            base_action = session.query(UpgradeTechnologyAction).filter_by(
+                id=action_id,
+                country_id=country.id
+            ).first()
+            if not base_action:
+                raise InvalidActionException(f"UpgradeTechnologyAction ID {action_id} not found for country {country.name}.")
+
+            if base_action.selected:
+                raise InvalidActionException(f"UpgradeTechnologyAction ID {action_id} has already been selected.")
+
+            base_action.selected = True
             apply_upgrade_technology_action(base_action, country, session)
+
         else:
             raise InvalidActionException(f"Unknown action type: {action_type}.")
 
+        # Commit the changes after applying the action
+        session.commit()
+    
     elif action_type == "BuySellResource":
         # Handle BuySellResource action directly from action_data
         apply_buy_sell_resource_action(action_data, country, turn_number, session)
