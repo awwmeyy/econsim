@@ -302,12 +302,6 @@ def store_expand_industry_actions(country: Country, turn_number: int, expand_opt
 def store_tech_upgrade_actions(country: Country, turn_number: int, tech_upgrade_data, session: Session):
     """
     Stores UpgradeTechnologyAction instances in the database.
-
-    Args:
-        country (Country): The Country instance.
-        turn_number (int): The current turn number.
-        tech_upgrade_data (list): List of tech upgrade options.
-        session (Session): The SQLAlchemy session.
     """
     try:
         # Get the current turn
@@ -333,6 +327,9 @@ def store_tech_upgrade_actions(country: Country, turn_number: int, tech_upgrade_
                 print(f"Industry {upgrade_option.get('Industry ID')} not found for country {country.name}.")
                 continue
 
+            # Serialize the benefits into a JSON string
+            benefits_json = json.dumps(upgrade_option.get('Benefits'))
+
             action = UpgradeTechnologyAction(
                 turn_id=turn.id,
                 country_id=country.id,
@@ -341,7 +338,7 @@ def store_tech_upgrade_actions(country: Country, turn_number: int, tech_upgrade_
                 new_technology_level=upgrade_option.get('New Technology Level'),
                 upgrade_cost=upgrade_option.get('Upgrade Cost'),
                 time_to_complete=upgrade_option.get('Time to Complete'),
-                benefits=upgrade_option.get('Benefits'),
+                benefits=benefits_json,  # Store benefits as a JSON string
             )
             session.add(action)
 

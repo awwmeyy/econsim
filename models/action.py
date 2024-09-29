@@ -62,7 +62,7 @@ class UpgradeTechnologyAction(Action):
     new_technology_level = Column(Integer, nullable=False)
     upgrade_cost = Column(Numeric, nullable=False)
     time_to_complete = Column(Integer, nullable=False)
-    benefits = Column(Text)  # Description of benefits
+    benefits = Column(Text)
 
     __mapper_args__ = {
         'polymorphic_identity': 'UpgradeTechnology',
