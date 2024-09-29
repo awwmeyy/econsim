@@ -1,7 +1,3 @@
-**First Prompt:**
-
----
-
 **Task:** Generate options for technology upgrades for existing industries based on the country's current schema.
 
 ---
@@ -24,7 +20,11 @@
      - **New Technology Level**: The proposed new technology level after the upgrade.
      - **Upgrade Cost**: Capital required to perform the technology upgrade.
      - **Time to Complete**: Number of turns required to complete the upgrade.
-     - **Benefits**: Expected benefits from the upgrade, such as increased efficiency, reduced input requirements, increased output quality or quantity, reduced labor requirements, etc.
+     - **Benefits**: Expected benefits from the upgrade, provided as a structured JSON object. The benefits should include the following categories (expressed as percentages without the "%" symbol; if there's no change, set to 0):
+       - **Unskilled Labor Reduction**
+       - **Skilled Labor Reduction**
+       - **Output Increase**
+       - **Input Decrease**
      - **Justification**: Brief explanation of why upgrading this industry's technology is beneficial based on the country's current situation.
 
 3. **Guidelines:**
@@ -50,48 +50,73 @@
   "TechnologyUpgrades": [
     {
       "Industry ID": "IND2",
-      "Current Technology Level": 1,
-      "New Technology Level": 2,
-      "Upgrade Cost": 50000,
-      "Time to Complete": 2,
-      "Benefits": "Increases production efficiency by 15%, reduces skilled labor requirements by 10%",
-      "Justification": "Upgrading the electronics manufacturing industry enhances efficiency and output, leveraging its importance in the economy."
-    },
-    {
-      "Industry ID": "IND3",
       "Current Technology Level": 2,
       "New Technology Level": 3,
-      "Upgrade Cost": 80000,
-      "Time to Complete": 3,
-      "Benefits": "Reduces input costs by 20%, increases product quality, opens access to new markets",
-      "Justification": "Advancing technology in steel manufacturing reduces costs and improves competitiveness."
+      "Upgrade Cost": 75000,
+      "Time to Complete": 2,
+      "Benefits": {
+        "Unskilled Labor Reduction": 10,
+        "Skilled Labor Reduction": 5,
+        "Output Increase": 20,
+        "Input Decrease": 15
+      },
+      "Justification": "Upgrading the electronics manufacturing industry will boost output and efficiency, capitalizing on its role in the economy."
     },
     {
       "Industry ID": "IND1",
       "Current Technology Level": 1,
       "New Technology Level": 2,
-      "Upgrade Cost": 60000,
+      "Upgrade Cost": 50000,
+      "Time to Complete": 1,
+      "Benefits": {
+        "Unskilled Labor Reduction": 5,
+        "Skilled Labor Reduction": 0,
+        "Output Increase": 25,
+        "Input Decrease": 0
+      },
+      "Justification": "Enhancing mining technology increases copper ore output, supporting related industries."
+    },
+    {
+      "Industry ID": "IND3",
+      "Current Technology Level": 2,
+      "New Technology Level": 3,
+      "Upgrade Cost": 90000,
       "Time to Complete": 2,
-      "Benefits": "Enhances extraction efficiency, increases output by 25%",
-      "Justification": "Improving mining technology increases resource extraction rates, supporting downstream industries."
+      "Benefits": {
+        "Unskilled Labor Reduction": 15,
+        "Skilled Labor Reduction": 10,
+        "Output Increase": 30,
+        "Input Decrease": 20
+      },
+      "Justification": "Advancing steel production technology reduces costs and enhances competitiveness."
     },
     {
       "Industry ID": "IND4",
       "Current Technology Level": 1,
       "New Technology Level": 3,
-      "Upgrade Cost": 120000,
-      "Time to Complete": 4,
-      "Benefits": "Significantly reduces production costs, increases output quality, reduces environmental impact",
-      "Justification": "A major technology leap in chemical production can position the country as a leader in the industry."
+      "Upgrade Cost": 130000,
+      "Time to Complete": 3,
+      "Benefits": {
+        "Unskilled Labor Reduction": 20,
+        "Skilled Labor Reduction": 15,
+        "Output Increase": 35,
+        "Input Decrease": 25
+      },
+      "Justification": "A significant upgrade in chemical production can position the country as an industry leader."
     },
     {
       "Industry ID": "IND5",
       "Current Technology Level": 2,
       "New Technology Level": 4,
-      "Upgrade Cost": 200000,
+      "Upgrade Cost": 210000,
       "Time to Complete": 5,
-      "Benefits": "Maximizes efficiency, minimizes labor requirements, produces cutting-edge products",
-      "Justification": "Investing heavily in the software development industry capitalizes on the skilled workforce and high-tech potential."
+      "Benefits": {
+        "Unskilled Labor Reduction": 25,
+        "Skilled Labor Reduction": 20,
+        "Output Increase": 50,
+        "Input Decrease": 30
+      },
+      "Justification": "Investing in software development maximizes high-tech potential and skilled workforce utilization."
     }
   ]
 }

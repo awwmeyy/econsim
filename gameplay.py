@@ -355,12 +355,12 @@ def apply_buy_sell_resource_action(action_data, country: Country, turn_number: i
     quantity = details.get("Quantity")
     total_price = details.get("TotalCost") or details.get("TotalRevenue")
 
-    # Convert total_price to Decimal
-    total_price = Decimal(str(total_price))
-
     # Validate inputs
     if not all([transaction_type, resource_name, quantity, total_price]):
         raise InvalidActionException(f"Invalid BuySellResource action data for country {country.name}.")
+
+    # Convert total_price to Decimal
+    total_price = Decimal(str(total_price))
 
     # Get the resource
     resource = session.query(Resource).filter_by(name=resource_name).first()
@@ -488,7 +488,7 @@ def get_openai_response(prompt):
     try:
         # Send the prompt to OpenAI API
         response = client.chat.completions.create(
-            model="openai/gpt-4o-mini",
+            model="anthropic/claude-3.5-sonnet",
             messages=[
                 {
                     "role": "user",
