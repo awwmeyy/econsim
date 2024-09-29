@@ -183,7 +183,7 @@ def get_ai_response(prompt):
                 }
             ],
         )
-        response_text = response.choices[0].message.content
+        response_text = response.choices[0].message.content.strip()
         return response_text
     except Exception as e:
         print(f"OpenAI API error: {e}")
