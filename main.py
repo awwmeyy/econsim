@@ -7,6 +7,8 @@ from datetime import datetime
 from init_world import generate_initial_world
 from init_marketplace import generate_marketplace_data
 from generate_actions import generate_action_options_for_all_countries
+from gameplay import process_ai_turn
+from pick_winner import pick_winner
 
 # Database setup
 DATABASE_URL = "sqlite:///game.db"
@@ -54,7 +56,7 @@ def main():
     game = Game(
         user_id=user.id,
         current_turn_number=1,
-        total_turns=50,
+        total_turns=10, # need to make this changeable
         created_at=datetime.now(),
         is_active=True
     )
@@ -72,8 +74,25 @@ def main():
 
     print("Game initialization complete.")
 
-    # generate initial actions 
-    generate_action_options_for_all_countries(game, 1, session=session)
+    # Start the game loop for each turn
+    for turn_number in range(1, game.total_turns + 1):
+        print(f"\n--- Turn {turn_number} ---")
+
+        # Generate action options for all countries
+        generate_action_options_for_all_countries(game, turn_number, session)
+
+        # Process AI turns
+        process_ai_turn(game, turn_number, session)
+
+        # Update the current turn number in the game
+        game.current_turn_number = turn_number
+        session.commit()
+
+    print("\nGame has ended after 50 turns.")
+
+    # Determine the winner
+    print("Determining the winner...")
+    pick_winner(game.id, session)
 
     # Close the session
     session.close()

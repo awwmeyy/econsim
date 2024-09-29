@@ -117,6 +117,7 @@ Provide your actions in the following structured JSON format:
   "Actions": [
     {
       "ActionType": "StartNewIndustry",
+      "ActionID": 2,
       "IndustryID": "IND12",
       "Details": {
         "Type": "Manufacturing",
@@ -135,6 +136,7 @@ Provide your actions in the following structured JSON format:
     },
     {
       "ActionType": "ExpandIndustry",
+      "ActionID": 1,
       "IndustryID": "IND5",
       "Details": {
         "NewProductionLevel": 3,
@@ -143,6 +145,7 @@ Provide your actions in the following structured JSON format:
     },
     {
       "ActionType": "UpgradeTechnology",
+      "ActionID": 4,
       "IndustryID": "IND3",
       "Details": {
         "NewTechnologyLevel": 2,

@@ -10,6 +10,7 @@ from models import (
     MarketTransaction
 )
 from sqlalchemy import and_
+from decimal import Decimal
 
 # Define a custom exception for invalid actions
 class InvalidActionException(Exception):
@@ -23,11 +24,6 @@ client = OpenAI(
 def process_ai_turn(game: Game, turn_number: int, session: Session):
     """
     Processes the turn for all AI-controlled countries.
-
-    Args:
-        game (Game): The current game instance.
-        turn_number (int): The current turn number.
-        session (Session): The SQLAlchemy session.
     """
     countries = session.query(Country).filter_by(game_id=game.id, is_ai=True).all()
     if not countries:
@@ -48,10 +44,8 @@ def process_ai_turn(game: Game, turn_number: int, session: Session):
         # Apply each action to the game state
         if actions_data:
             try:
-                # Start a transaction
-                with session.begin():
-                    for action_data in actions_data:
-                        apply_ai_action(country, turn_number, action_data, session)
+                for action_data in actions_data:
+                    apply_ai_action(country, turn_number, action_data, session)
                 print(f"Applied actions for country {country.name}.")
             except InvalidActionException as e:
                 session.rollback()
@@ -63,14 +57,6 @@ def process_ai_turn(game: Game, turn_number: int, session: Session):
 def prepare_ai_prompt(country: Country, turn_number: int, session: Session):
     """
     Prepares the prompt for the AI-controlled country using LLMTurn.md.
-
-    Args:
-        country (Country): The Country instance.
-        turn_number (int): The current turn number.
-        session (Session): The SQLAlchemy session.
-
-    Returns:
-        str: The prepared prompt.
     """
     # Read the LLMTurn.md prompt
     with open('prompts/gameplay/LLMTurn.md', 'r') as f:
@@ -90,20 +76,12 @@ def prepare_ai_prompt(country: Country, turn_number: int, session: Session):
 
     # Prepare the final prompt
     prompt = f"{base_prompt}\n\n### **Current Turn Information**\nTurn Number: {turn_number}\n\n### **Country Schema**\n```json\n{country_schema_json}\n```\n\n### **Marketplace Prices**\n```json\n{marketplace_data_json}\n```\n\n### **Available Actions**\n```json\n{available_actions_json}\n```\n\n**Note: Options for BuySellResource actions are not pre-generated and should be decided based on the given data.**"
- 
+
     return prompt
 
 def get_available_actions(country: Country, turn_number: int, session: Session):
     """
     Retrieves the available actions for a country at a given turn.
-
-    Args:
-        country (Country): The Country instance.
-        turn_number (int): The current turn number.
-        session (Session): The SQLAlchemy session.
-
-    Returns:
-        dict: Dictionary containing lists of available actions.
     """
     actions = {
         "StartNewIndustry": [],
@@ -172,12 +150,6 @@ def get_available_actions(country: Country, turn_number: int, session: Session):
 def get_marketplace_data(session: Session):
     """
     Retrieves the current marketplace prices.
-
-    Args:
-        session (Session): The SQLAlchemy session.
-
-    Returns:
-        dict: Marketplace prices data.
     """
     resources = session.query(Resource).all()
     marketplace = {}
@@ -194,12 +166,6 @@ def get_marketplace_data(session: Session):
 def parse_ai_response(response_text):
     """
     Parses the AI's response to get the actions.
-
-    Args:
-        response_text (str): The response text from OpenAI.
-
-    Returns:
-        list: List of action data dictionaries.
     """
     try:
         # Remove code fences if present
@@ -223,12 +189,6 @@ def parse_ai_response(response_text):
 def apply_ai_action(country: Country, turn_number: int, action_data, session: Session):
     """
     Applies the AI-selected action to the game state.
-
-    Args:
-        country (Country): The Country instance.
-        turn_number (int): The current turn number.
-        action_data (dict): The selected action data.
-        session (Session): The SQLAlchemy session.
     """
     action_type = action_data.get("ActionType")
 
@@ -271,16 +231,13 @@ def apply_ai_action(country: Country, turn_number: int, action_data, session: Se
 def apply_start_new_industry_action(action: StartNewIndustryAction, country: Country, session: Session):
     """
     Applies a StartNewIndustryAction to the game state.
-
-    Args:
-        action (StartNewIndustryAction): The action to apply.
-        country (Country): The Country instance.
-        session (Session): The SQLAlchemy session.
     """
     # Feasibility check
-    # Check if country has enough capital
-    if country.government_capital < action.setup_cost:
-        raise InvalidActionException(f"Not enough capital to start new industry (requires {action.setup_cost}, has {country.government_capital}).")
+    # Convert setup_cost to Decimal for comparison
+    setup_cost = Decimal(action.setup_cost)
+
+    if country.government_capital < setup_cost:
+        raise InvalidActionException(f"Not enough capital to start new industry (requires {setup_cost}, has {country.government_capital}).")
 
     # Check if country has enough workforce
     if country.unemployed_skilled_workers < action.skilled_workers_required:
@@ -289,7 +246,7 @@ def apply_start_new_industry_action(action: StartNewIndustryAction, country: Cou
         raise InvalidActionException(f"Not enough unemployed unskilled workers to start new industry (requires {action.unskilled_workers_required}, has {country.unemployed_unskilled_workers}).")
 
     # Deduct setup cost from government's capital pool
-    country.government_capital -= action.setup_cost
+    country.government_capital -= setup_cost
 
     # Deduct workers from unemployed workforce
     country.unemployed_skilled_workers -= action.skilled_workers_required
@@ -334,16 +291,13 @@ def apply_start_new_industry_action(action: StartNewIndustryAction, country: Cou
 def apply_expand_industry_action(action: ExpandIndustryAction, country: Country, session: Session):
     """
     Applies an ExpandIndustryAction to the game state.
-
-    Args:
-        action (ExpandIndustryAction): The action to apply.
-        country (Country): The Country instance.
-        session (Session): The SQLAlchemy session.
     """
     # Feasibility check
-    # Check if country has enough capital
-    if country.government_capital < action.expansion_cost:
-        raise InvalidActionException(f"Not enough capital to expand industry (requires {action.expansion_cost}, has {country.government_capital}).")
+    # Convert expansion_cost to Decimal for comparison
+    expansion_cost = Decimal(action.expansion_cost)
+
+    if country.government_capital < expansion_cost:
+        raise InvalidActionException(f"Not enough capital to expand industry (requires {expansion_cost}, has {country.government_capital}).")
 
     # Check if country has enough workforce
     if country.unemployed_skilled_workers < action.additional_skilled_workers_required:
@@ -352,7 +306,7 @@ def apply_expand_industry_action(action: ExpandIndustryAction, country: Country,
         raise InvalidActionException(f"Not enough unemployed unskilled workers to expand industry (requires {action.additional_unskilled_workers_required}, has {country.unemployed_unskilled_workers}).")
 
     # Deduct expansion cost from government's capital pool
-    country.government_capital -= action.expansion_cost
+    country.government_capital -= expansion_cost
 
     # Deduct additional workers from unemployed workforce
     country.unemployed_skilled_workers -= action.additional_skilled_workers_required
@@ -367,25 +321,23 @@ def apply_expand_industry_action(action: ExpandIndustryAction, country: Country,
 def apply_upgrade_technology_action(action: UpgradeTechnologyAction, country: Country, session: Session):
     """
     Applies an UpgradeTechnologyAction to the game state.
-
-    Args:
-        action (UpgradeTechnologyAction): The action to apply.
-        country (Country): The Country instance.
-        session (Session): The SQLAlchemy session.
     """
     # Feasibility check
-    if country.government_capital < action.upgrade_cost:
-        raise InvalidActionException(f"Not enough capital to upgrade technology (requires {action.upgrade_cost}, has {country.government_capital}).")
+    # Convert upgrade_cost to Decimal for comparison
+    upgrade_cost = Decimal(action.upgrade_cost)
+
+    if country.government_capital < upgrade_cost:
+        raise InvalidActionException(f"Not enough capital to upgrade technology (requires {upgrade_cost}, has {country.government_capital}).")
 
     # Deduct upgrade cost from government's capital pool
-    country.government_capital -= action.upgrade_cost
+    country.government_capital -= upgrade_cost
 
     # Create a TechnologyUpgrade record
     tech_upgrade = TechnologyUpgrade(
         industry_id=action.industry_id,
         initiated_turn_id=action.turn_id,
         new_technology_level=action.new_technology_level,
-        upgrade_cost=action.upgrade_cost,
+        upgrade_cost=upgrade_cost,
         total_time_required=action.time_to_complete,
         remaining_time=action.time_to_complete,
         benefits=action.benefits,
@@ -396,18 +348,15 @@ def apply_upgrade_technology_action(action: UpgradeTechnologyAction, country: Co
 def apply_buy_sell_resource_action(action_data, country: Country, turn_number: int, session: Session):
     """
     Applies a BuySellResource action to the game state.
-
-    Args:
-        action_data (dict): The action data.
-        country (Country): The Country instance.
-        turn_number (int): The current turn number.
-        session (Session): The SQLAlchemy session.
     """
     details = action_data.get("Details", {})
     transaction_type = details.get("TransactionType")
     resource_name = details.get("ResourceName")
     quantity = details.get("Quantity")
     total_price = details.get("TotalCost") or details.get("TotalRevenue")
+
+    # Convert total_price to Decimal
+    total_price = Decimal(str(total_price))
 
     # Validate inputs
     if not all([transaction_type, resource_name, quantity, total_price]):
@@ -476,13 +425,16 @@ def apply_buy_sell_resource_action(action_data, country: Country, turn_number: i
         session.add(turn)
         session.flush()
 
+    # Calculate price per unit as Decimal
+    price_per_unit = total_price / Decimal(quantity)
+
     transaction = MarketTransaction(
         turn_id=turn.id,
         country_id=country.id,
         resource_id=resource.id,
         transaction_type=transaction_type,
         quantity=quantity,
-        price_per_unit=total_price / quantity,
+        price_per_unit=price_per_unit,
         total_price=total_price
     )
     session.add(transaction)
@@ -492,15 +444,17 @@ def apply_buy_sell_resource_action(action_data, country: Country, turn_number: i
     if quantity_threshold == 0:
         raise InvalidActionException(f"Resource '{resource_name}' has zero quantity_threshold.")
 
-    # Calculate the percentage change proportionally
-    percentage_change = 0.05 * (quantity / quantity_threshold)
+    # Calculate the percentage change proportionally using Decimal
+    percentage_change = Decimal('0.05') * (Decimal(quantity) / Decimal(quantity_threshold))
 
     if transaction_type == "Buy":
         # Buying increases demand, price goes up
-        new_price = resource.current_price * (1 + percentage_change)
+        new_price = resource.current_price * (Decimal('1') + percentage_change)
     elif transaction_type == "Sell":
         # Selling increases supply, price goes down
-        new_price = resource.current_price * (1 - percentage_change)
+        new_price = resource.current_price * (Decimal('1') - percentage_change)
+    else:
+        raise InvalidActionException(f"Invalid TransactionType '{transaction_type}' for BuySellResource action.")
 
     # Ensure new price is within MinPrice and MaxPrice
     new_price = max(min(new_price, resource.max_price), resource.min_price)
@@ -510,25 +464,18 @@ def apply_buy_sell_resource_action(action_data, country: Country, turn_number: i
 def get_or_create_resource(resource_name, session: Session):
     """
     Gets a Resource by name, or creates it if it doesn't exist.
-
-    Args:
-        resource_name (str): The name of the resource.
-        session (Session): The SQLAlchemy session.
-
-    Returns:
-        Resource: The Resource instance.
     """
     resource = session.query(Resource).filter_by(name=resource_name).first()
     if not resource:
         # Create a new Resource with default values
         resource = Resource(
             name=resource_name,
-            base_price=0,  # Placeholder, to be set later
-            current_price=0,  # Placeholder, to be set later
+            base_price=Decimal('0.00'),  # Placeholder, to be set later
+            current_price=Decimal('0.00'),  # Placeholder, to be set later
             quantity_threshold=0,  # Placeholder, to be set later
             max_transaction_per_turn=0,  # Placeholder, to be set later
-            max_price=0,  # Placeholder, to be set later
-            min_price=0,  # Placeholder, to be set later
+            max_price=Decimal('0.00'),  # Placeholder, to be set later
+            min_price=Decimal('0.00'),  # Placeholder, to be set later
         )
         session.add(resource)
         session.flush()  # Get resource.id
@@ -537,12 +484,6 @@ def get_or_create_resource(resource_name, session: Session):
 def get_openai_response(prompt):
     """
     Sends the prompt to the OpenAI API and returns the response text.
-
-    Args:
-        prompt (str): The prompt to send.
-
-    Returns:
-        str: The response text from OpenAI.
     """
     try:
         # Send the prompt to OpenAI API
@@ -564,13 +505,6 @@ def get_openai_response(prompt):
 def prepare_country_schema(country: Country, session: Session):
     """
     Prepares the country schema as a dictionary for the prompt.
-
-    Args:
-        country (Country): The Country instance.
-        session (Session): The SQLAlchemy session.
-
-    Returns:
-        dict: The country schema.
     """
     # Industries
     industries = []
