@@ -50,10 +50,12 @@ class IndustryExpansion(Base):
     new_production_level = Column(Integer, nullable=False)
     expansion_cost = Column(Numeric, nullable=False)
     total_time_required = Column(Integer, nullable=False)
-    remaining_time = Column(Integer, nullable=False)  # Decrements each turn
+    remaining_time = Column(Integer, nullable=False)
     additional_skilled_workers_required = Column(Integer, nullable=False)
     additional_unskilled_workers_required = Column(Integer, nullable=False)
+    increase_in_outputs = Column(Text, nullable=True)  # Added field
+    additional_inputs_required = Column(Text, nullable=True)  # Added field
     is_completed = Column(Boolean, default=False)
     # Relationships
     industry = relationship('Industry', back_populates='expansions')
-    initiated_turn = relationship('Turn')  # Assuming you might want to access the turn
+    initiated_turn = relationship('Turn')
